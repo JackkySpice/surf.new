@@ -67,6 +67,15 @@ async def create_session(request: SessionRequest):
             },
             api_timeout=request.timeout * 1000,
         )
+    elif request.agent_type.name == "GEMINI_COMPUTER_USE":
+        # Use Google's recommended 1440x900 viewport
+        return steel_client.sessions.create(
+            dimensions={
+                "width": 1440,
+                "height": 900,
+            },
+            api_timeout=request.timeout * 1000,
+        )
     else:
         return steel_client.sessions.create(
             api_timeout=request.timeout * 1000,
