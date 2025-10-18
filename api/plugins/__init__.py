@@ -13,6 +13,7 @@ from ..models import ModelConfig, ModelProvider
 from .base import base_agent
 from .claude_computer_use import claude_computer_use
 from .browser_use import browser_use_agent
+from .gemini_computer_use import gemini_computer_use
 from ..utils.types import AgentSettings
 from .claude_computer_use.prompts import SYSTEM_PROMPT
 
@@ -24,6 +25,7 @@ class WebAgentType(Enum):
     EXAMPLE = "example"
     CLAUDE_COMPUTER_USE = "claude_computer_use"
     BROWSER_USE = "browser_use_agent"
+    GEMINI_COMPUTER_USE = "gemini_computer_use"
 
 
 class SettingType(Enum):
@@ -222,6 +224,46 @@ AGENT_CONFIGS = {
             },
         },
     },
+    WebAgentType.GEMINI_COMPUTER_USE.value: {
+        "name": "Gemini Computer Use",
+        "description": "Browser control using Gemini Computer Use model",
+        "supported_models": [
+            {
+                "provider": ModelProvider.GEMINI.value,
+                "models": [
+                    "gemini-2.5-computer-use-preview-10-2025",
+                    "gemini-2.5-flash-preview-04-17",
+                    "gemini-2.5-pro-exp-03-25",
+                ],
+            }
+        ],
+        "model_settings": {
+            "max_tokens": {
+                "type": SettingType.INTEGER.value,
+                "default": 2000,
+                "min": 1,
+                "max": 64000,
+                "description": "Maximum output tokens",
+            },
+            "temperature": {
+                "type": SettingType.FLOAT.value,
+                "default": 0.6,
+                "min": 0,
+                "max": 1,
+                "step": 0.05,
+                "description": "Controls randomness",
+            },
+        },
+        "agent_settings": {
+            "steps": {
+                "type": SettingType.INTEGER.value,
+                "default": 8,
+                "min": 1,
+                "max": 25,
+                "description": "Max Computer Use turns",
+            },
+        },
+    },
     
 }
 
@@ -237,6 +279,8 @@ def get_web_agent(
         return claude_computer_use
     elif name == WebAgentType.BROWSER_USE:
         return browser_use_agent
+    elif name == WebAgentType.GEMINI_COMPUTER_USE:
+        return gemini_computer_use
     else:
         raise ValueError(f"Invalid agent type: {name}")
 
