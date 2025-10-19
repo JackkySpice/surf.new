@@ -1,4 +1,17 @@
 /** @type {import('next').NextConfig} */
+
+function computeApiBaseUrl() {
+  const apiUrl = process.env.API_URL;
+  if (!apiUrl || apiUrl.length === 0) {
+    return "http://localhost:8000";
+  }
+  if (apiUrl.startsWith("http://") || apiUrl.startsWith("https://")) {
+    return apiUrl;
+  }
+  // When API_URL is just a hostname (e.g., from Render's fromService.host)
+  return `https://${apiUrl}`;
+}
+
 const nextConfig = {
   experimental: {
     reactCompiler: true,
@@ -22,18 +35,19 @@ const nextConfig = {
     ],
   },
   rewrites: async () => {
+    const API_BASE = computeApiBaseUrl();
     return [
       {
         source: "/api/:path*",
-        destination: `${process.env.API_URL || "http://localhost:8000"}/api/:path*`,
+        destination: `${API_BASE}/api/:path*`,
       },
       {
         source: "/docs",
-        destination: `${process.env.API_URL || "http://localhost:8000"}/docs`,
+        destination: `${API_BASE}/docs`,
       },
       {
         source: "/openapi.json",
-        destination: `${process.env.API_URL || "http://localhost:8000"}/openapi.json`,
+        destination: `${API_BASE}/openapi.json`,
       },
     ];
   },
