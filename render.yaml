@@ -1,0 +1,33 @@
+services:
+  - type: web
+    name: surf-backend
+    env: docker
+    dockerfilePath: api/Dockerfile
+    autoDeploy: true
+    plan: free
+    healthCheckPath: /healthcheck
+    envVars:
+      - key: STEEL_API_KEY
+        sync: false
+      - key: STEEL_API_URL
+        sync: false
+
+  - type: web
+    name: surf-web
+    env: node
+    plan: free
+    autoDeploy: true
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start -- -p $PORT
+    envVars:
+      # Expose the backend URL to Next.js rewrites in next.config.js
+      - key: API_URL
+        fromService:
+          name: surf-backend
+          type: web
+          property: url
+      # Optional analytics
+      - key: NEXT_PUBLIC_POSTHOG_KEY
+        sync: false
+      - key: NEXT_PUBLIC_POSTHOG_HOST
+        value: https://us.i.posthog.com
